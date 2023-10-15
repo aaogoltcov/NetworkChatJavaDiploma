@@ -1,0 +1,5 @@
+rootProject.name = 'NetworkChatJavaDiploma'
+include 'server'
+include 'client'
+include 'shared'
+

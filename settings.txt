@@ -1,0 +1,4 @@
+port=8877
+log=file.log
+host=localhost
+prefix=>>
