@@ -13,7 +13,10 @@ public class Server {
     private static final String PORT = FilesReaderService.getSettingByKey(SETTINGS, "port");
     static final LinkedList<Connection> connectionsList = new LinkedList<>();
 
-    public static void main(String[] args) throws IOException {
+    public Server() {
+    }
+
+    public void start() throws IOException {
         try (
             ServerSocket serverSocket = new ServerSocket(Integer.parseInt(PORT))
         ) {

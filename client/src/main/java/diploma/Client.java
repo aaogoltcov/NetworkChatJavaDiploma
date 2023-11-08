@@ -7,39 +7,39 @@ import java.io.PrintWriter;
 import java.net.Socket;
 
 public class Client {
+    private final Socket clientSocket;
+    private final ClientRead clientRead;
+    private final ClientWrite clientWrite;
     private static final String SETTINGS = "settings.txt";
     static final String PORT = FilesReaderService.getSettingByKey(SETTINGS,"port");
     static final String HOST = FilesReaderService.getSettingByKey(SETTINGS,"host");
 
-    public static void main(String[] args) {
-        try (
-            Socket clientSocket = new Socket(HOST, Integer.parseInt(PORT));
-            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
-            BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in))
-        ) {
-            while (true) {
-                String resp = in.readLine();
+    public Client() throws IOException {
+        clientSocket = new Socket(HOST, Integer.parseInt(PORT));
+        PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+        BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 
-                if (resp == null) {
-                    break;
-                }
+        clientRead = new ClientRead(in);
+        clientWrite = new ClientWrite(out, reader);
+    }
 
-                if (resp.equals("closed")) {
-                    break;
-                }
+    public void start() throws IOException {
+        clientRead.start();
+        clientWrite.start();
 
-                System.out.println(resp);
+        while (true) {
+            if (clientSocket.isClosed()) {
+                close();
 
-                if (!resp.startsWith(">>")) {
-                    String answer = reader.readLine();
-
-                    out.println(answer);
-                }
+                break;
             }
-        } catch (IOException ignored) {
-        } finally {
-            System.out.println("Клиент закрыт!");
         }
+    }
+
+    public void close() throws IOException {
+        clientSocket.close();
+
+        System.out.println("Клиент закрыт!");
     }
 }
